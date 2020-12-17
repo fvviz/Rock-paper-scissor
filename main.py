@@ -1,4 +1,4 @@
 from _utils import WebCam
 
 
-WebCam.start()
+WebCam.play_game()

@@ -6,7 +6,7 @@ from PIL import Image
 
 x, y, w, h =  200, 100, 170, 170
 model = model_from_json(open("../model/model2/model2.json", "r").read())
-model.load_weights("model/model2/best_weights.h5")
+model.load_weights("../model/model2/best_weights.h5")
 
 
 
@@ -46,7 +46,8 @@ while cap.isOpened():
     #cv2.putText(test_img, predicted_gesture, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     test_img = cv2.flip(test_img, 1)
     cv2.putText(test_img,f"{predicted_emotion} {round(predict_percent,2)}%", (int(x+100), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
+    cv2.putText(test_img, f"{x} {y}", (int(x + 100), int(y+200)),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
     resized_img = cv2.resize(test_img, (1000, 700))
 
 
