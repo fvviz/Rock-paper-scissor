@@ -3,12 +3,14 @@ from tensorflow.keras.preprocessing.image import img_to_array
 
 import cv2
 import numpy as np
-import time
-import random
+
+from game_utils import Gesture
+from game_utils import RockPaperScissors
 
 from constants import x, y, w, h
 from constants import model_path, model_weights_path
 from constants import rectangle_color, text_color
+from constants import computer_gestures
 
 
 class GestureModel:
@@ -49,7 +51,11 @@ class WebCam:
                       color=rectangle_color, thickness=5)
 
     @classmethod
-    def create_text(cls, frame, text, font_scale=1, thickness=2, org=(x+300, y), color = text_color):
+    def create_text(cls, frame,
+                    text, font_scale=1,
+                    thickness=2, org=(x-w-10, y),
+                    color=text_color):
+
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img=frame, text=text,
                     org=org,
@@ -57,56 +63,44 @@ class WebCam:
                     color=color, thickness=thickness)
 
     @classmethod
-    def add_prediction(cls, frame):
-        gesture, percent = cls.model.predict(frame)
-        cls.create_rectangle(frame)
-
-        flipped_frame = cv2.flip(frame, 1)
-        cls.create_text(flipped_frame, f"{gesture} {percent}%")
-
-    @classmethod
     def play_game(cls):
         cap = cv2.VideoCapture(0)
-        frame_num = 0
-        val = 0
+        computer_gesture = Gesture.generate_random()
+        scores = [0, 0, 0]
+        hand_in_screen = 0
+
         while cap.isOpened():
             ret, frame = cap.read()
-            if not ret:
-                continue
 
-            print("val" , val)
+            gesture, percent = cls.model.predict(frame)
+            cls.create_rectangle(frame)
+            frame = cv2.flip(frame, 1)
 
-            if val < 3:
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                cls.create_rectangle(gray_frame)
+            if not gesture == "empty":
+                person_gesture = Gesture(gesture)
+                image = cv2.imread(computer_gestures[computer_gesture.name])
+                image = cv2.resize(image, (180, 180))
+                x_offset, y_offset = (350, 100)
+                frame[y_offset:y_offset + image.shape[0], x_offset:x_offset + image.shape[1]] = image
+                result = RockPaperScissors.get_result(person_gesture, computer_gesture)
 
-                frame = cv2.flip(gray_frame, 1)
+                if hand_in_screen == 0:
+                    scores[result[0]] += 1
+                    hand_in_screen += 1
 
-                cls.create_text(frame,
-                                f"{val}", org=(x + 300, y + 150),
-                                font_scale=5, thickness=5)
+                cls.create_text(frame, f"result: {result[1]}", org=(100, 350), color=(255, 255, 255))
 
-                cls.create_text(frame, "get ready",
-                                org=(x + 300, y + 200),
-                                font_scale=1, thickness=2)
-                frame = cv2.resize(frame, (1000, 700))
-
-                if frame_num % 50 == 0:
-                    val += 1
-                frame_num += 1
             else:
-                gesture, percent = cls.model.predict(frame)
-                cls.create_rectangle(frame)
-                frame = cv2.flip(frame, 1)
+                computer_gesture = Gesture.generate_random()
+                hand_in_screen = 0
 
-                cls.create_text(frame, f"{gesture} {percent}%")
-                frame = cv2.resize(frame, (1000, 700))
+            cls.create_text(frame, f"Person: {scores[0]}", org=(100, 310), color=(255, 0, 0))
+            cls.create_text(frame, f"Computer: {scores[1]}", org=(350, 310), color=(255, 0, 0))
+            cls.create_text(frame, f"{gesture} {percent}%", org=(100, 100))
+            frame = cv2.resize(frame, (1000, 700))
             cv2.imshow('Rock Paper Scissors!', frame)
             if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
-                    break
-
-
-
+                break
 
     @classmethod
     def start(cls):
@@ -116,26 +110,6 @@ class WebCam:
             if not ret:
                 continue
             flipped_frame = cv2.flip(frame, 1)
-            resized_frame = cv2.resize(flipped_frame, (1000, 700))
-            cv2.imshow('Rock Paper Scissors!', resized_frame)
-            if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
-                break
-
-    @classmethod
-    def start_predictions(cls):
-        cap = cv2.VideoCapture(0)
-
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                continue
-
-            preparing = True
-            gesture, percent = cls.model.predict(frame)
-            cls.create_rectangle(frame)
-
-            flipped_frame = cv2.flip(frame, 1)
-            cls.create_text(flipped_frame, f"{gesture} {percent}%")
             resized_frame = cv2.resize(flipped_frame, (1000, 700))
             cv2.imshow('Rock Paper Scissors!', resized_frame)
             if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed

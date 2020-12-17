@@ -1,4 +1,5 @@
-x, y, w, h = 100, 100, 170, 170
+x, y, w, h = 400, 100, 170, 170
+paste_coords = (x-300, 100)
 
 model_path = "model/model2/model2.json"
 model_weights_path = "model/model2/best_weights.h5"
@@ -12,8 +13,8 @@ computer_gestures = {
     "scissors": "bot_gestures/scissors.png"
 }
 
-a = {
-    "rock"  :  "paper",
-    "paper" : "scissor",
-    "scissor" : "rock"
+stronger_gesture = {
+    "rock":  "paper",
+    "paper": "scissor",
+    "scissors": "rock"
 }
