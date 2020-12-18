@@ -1,4 +1,4 @@
-# rock-paper-scissors
+# Rock-paper-scissor
 A Deep learning program that recognizes your hand gesture and lets you play rock paper scissors with your computer  
 
 <img src = https://github.com/fvviz/rock-paper-scissors/blob/master/misc/ezgif.com-gif-maker%20(9).gif>
