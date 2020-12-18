@@ -68,8 +68,11 @@ class WebCam:
         computer_gesture = Gesture.generate_random()
         scores = [0, 0, 0]
         hand_in_screen = 0
+        hand_exited = 0
         result_ = ""
         frames_elapsed = 0
+        rounds = 0
+        rounds_ = 0
 
         while cap.isOpened():
             ret, frame = cap.read()
@@ -81,6 +84,9 @@ class WebCam:
             if not gesture == "empty":
                 frames_elapsed += 1
                 if frames_elapsed > 5:
+                    if hand_exited == 0:
+                        hand_exited += 1
+
                     person_gesture = Gesture(gesture)
                     image = cv2.imread(computer_gestures[computer_gesture.name])
                     image = cv2.resize(image, (180, 180))
@@ -92,20 +98,24 @@ class WebCam:
                         scores[result[0]] += 1
                         hand_in_screen += 1
                         result_ = result[1]
+                        rounds_ += 1
 
-                    cls.create_text(frame, f"result: {result_}", org=(100, 350), color=(255, 255, 255))
+                    else:
+                        cls.create_text(frame, f"result: {result_}", org=(100, 350), color=(255, 255, 255))
+                        cls.create_text(frame, f"{gesture} {percent}%", org=(100, 100))
+
                     frames_elapsed += 1
             else:
                 computer_gesture = Gesture.generate_random()
                 hand_in_screen = 0
                 frames_elapsed = 0
+                rounds = rounds_
 
-            cls.create_text(frame, f"Person: {scores[0]}", org=(100, 310), color=(255, 0, 0))
-            cls.create_text(frame, f"Computer: {scores[1]}", org=(350, 310), color=(255, 0, 0))
-            cls.create_text(frame, f"{gesture} {percent}%", org=(100, 100))
             cls.create_text(frame, f"frames: {frames_elapsed}", org=(100, 390), color=(0, 0, 0),
                             font_scale=1, thickness=2)
-
+            cls.create_text(frame, f"Round: {rounds}", org=(150, 50), color=(255, 0, 0))
+            cls.create_text(frame, f"Person: {scores[0]}", org=(100, 310), color=(255, 0, 0))
+            cls.create_text(frame, f"Computer: {scores[1]}", org=(350, 310), color=(255, 0, 0))
             frame = cv2.resize(frame, (1000, 700))
             cv2.imshow('Rock Paper Scissors!', frame)
             if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
