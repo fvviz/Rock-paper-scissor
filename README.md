@@ -1,7 +1,7 @@
 # rock-paper-scissors
 A Deep learning program that recognizes your hand gesture and lets you play rock paper scissors with your computer  
 
-<img src = https://imgur.com/y241zyj.gif>
+<img src = https://imgur.com/6s4BTmu.gif>
 
 
 The model is a convolutional neural network with 4 convolution layers and one dense layer trained on 100 epochs.  For now, This is all i have done but i am working on improving the accuracy
