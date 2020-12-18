@@ -3,7 +3,6 @@ from tensorflow.keras.preprocessing.image import img_to_array
 
 import cv2
 import numpy as np
-import time
 
 from game_utils import Gesture
 from game_utils import RockPaperScissors
@@ -104,12 +103,13 @@ class WebCam:
             cls.create_text(frame, f"Person: {scores[0]}", org=(100, 310), color=(255, 0, 0))
             cls.create_text(frame, f"Computer: {scores[1]}", org=(350, 310), color=(255, 0, 0))
             cls.create_text(frame, f"{gesture} {percent}%", org=(100, 100))
-            cls.create_text(frame, f"frames: {frames_elapsed}", org=(100, 390), color=(0, 0, 0), font_scale=1, thickness=2)
+            cls.create_text(frame, f"frames: {frames_elapsed}", org=(100, 390), color=(0, 0, 0),
+                            font_scale=1, thickness=2)
+
             frame = cv2.resize(frame, (1000, 700))
             cv2.imshow('Rock Paper Scissors!', frame)
             if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
                 break
-
 
     @classmethod
     def start(cls):
