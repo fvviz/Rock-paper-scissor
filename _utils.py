@@ -1,4 +1,4 @@
-from tensorflow.keras.models import model_from_json
+from tensorflow.keras.models import model_from_json, Sequential
 from tensorflow.keras.preprocessing.image import img_to_array
 
 import cv2
@@ -15,7 +15,10 @@ from constants import computer_gestures
 
 class GestureModel:
     def __init__(self, model_path_, model_weights_path_):
-        self.model = model_from_json(open(model_path_,"r").read())
+        self.model = model_from_json(
+            open(model_path_, "r").read(),
+            custom_objects={'Sequential': Sequential}
+        )
         self.model.load_weights(model_weights_path_)
         self.gestures = ('empty', 'paper', 'rock', 'scissors')
 
@@ -64,7 +67,7 @@ class WebCam:
 
     @classmethod
     def play_game(cls):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         computer_gesture = Gesture.generate_random()
         scores = [0, 0, 0]
         hand_in_screen = 0
@@ -76,6 +79,8 @@ class WebCam:
 
         while cap.isOpened():
             ret, frame = cap.read()
+            if not ret or frame is None:
+                continue
 
             gesture, percent = cls.model.predict(frame)
             cls.create_rectangle(frame)
